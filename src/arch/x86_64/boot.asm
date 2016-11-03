@@ -1,4 +1,5 @@
 global start
+extern long_mode_start
 
 section .text
 	bits 32
@@ -46,15 +47,70 @@ section .text
 		.no_long_mode:
 			mov AL, "2"
 			jmp error
+	setup_page_tables:
+		mov EAX, p3_table
+		or  EAX, 0b11
+		mov [p4_table], EAX
+		mov EAX, p2_table
+		or  EAX, 0b11
+		mov [p3_table], EAX
+		mov ECX, 0
+		.map_p2_table:
+			mov EAX, 0x200000
+			mul ECX
+			or  EAX, 0b10000011
+			mov [p2_table + ECX * 8], EAX
+			inc ECX
+			cmp ECX, 512
+			jne .map_p2_table
+		ret
+	enable_paging:
+		mov EAX, p4_table
+		mov CR3, EAX
+		mov EAX, CR4
+		or  EAX, 1 << 5
+		mov CR4, EAX
+		mov ECX, 0xC0000080
+		rdmsr
+		or  EAX, 1 << 8
+		wrmsr
+		mov EAX, CR0
+		or  EAX, 1 << 31
+		mov CR0, EAX
+		ret
 	start:
 		mov ESP, stack_top
 		call check_multiboot
 		call check_cpuid
 		call check_long_mode
-		mov dword [0xB8000], 0x2F4B2F4F
-		hlt
+		call setup_page_tables
+		call enable_paging
+		lgdt [gdt64.pointer]
+		mov AX, 16
+		mov SS, AX
+		mov DS, AX
+		mov ES, AX
+		jmp gdt64.code:long_mode_start
+
+section .rodata
+	gdt64:
+		dq 0
+		.code:  equ $ - gdt64
+			dq (1<<44)|(1<<47)|(1<<41)|(1<<43)|(1<<53)
+		.data:  equ $ - gdt64
+			dq (1<<44)|(1<<47)|(1<<41)
+		.pointer:
+			dw $ - gdt64 - 1
+			dq gdt64
 
 section .bss
+	align 4096
+	p4_table:
+		resb 4096
+	p3_table:
+		resb 4096
+	p2_table:
+		resb 4096
 	stack_bottom:
 		resb 64
 	stack_top:
