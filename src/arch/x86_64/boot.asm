@@ -1,6 +1,33 @@
 global start
 extern long_mode_start
 
+section .multiboot_header
+	align 8
+	header_start:
+		dd 0xE85250D6
+		dd 0
+		dd header_end - header_start
+		dd 0x100000000 - (0xE85250D6+0+(header_end - header_start))
+
+		dw 2
+		dw 0
+		dd 24
+		dd header_start
+		dd header_end
+		dd load_end_addr
+		dd stack_top
+
+		dw 3
+		dw 0
+		dd 12
+		dd start
+		dd 0
+
+		dw 0
+		dw 0
+		dd 8
+	header_end:
+		
 section .text
 	bits 32
 
@@ -102,7 +129,8 @@ section .rodata
 		.pointer:
 			dw $ - gdt64 - 1
 			dq gdt64
-
+	load_end_addr:
+		
 section .bss
 	align 4096
 	p4_table:

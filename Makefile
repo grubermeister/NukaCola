@@ -30,4 +30,4 @@ $(kernel):  $(assembly_object_files) $(linker_script)
 
 build/arch/$(arch)/%.o:  src/arch/$(arch)/%.asm
 	@mkdir -p $(shell dirname $@)
-	@nasm -felf64 $< -o $@
+	@nasm -fwin64 $< -o $@
