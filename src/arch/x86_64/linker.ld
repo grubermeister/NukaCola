@@ -3,14 +3,17 @@ ENTRY(start)
 SECTIONS {
 	. = 1M;
 
-	.boot :
-	{
-		/* ensure our multiboot header is at the beginning */
-		*(.multiboot_header)
-	}
-
 	.text :
 	{
-		*(.text)
+		KEEP(*(.multiboot_header))
+		*(.text .text.*)
+		*(.rodata .rodata.*)
+		. = ALIGN(4096);
+	}
+
+	.bss :
+	{
+		*(.bss .bss.*)
+		. = ALIGN(4096);
 	}
 }

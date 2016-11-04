@@ -2,7 +2,6 @@ global start
 extern long_mode_start
 
 section .multiboot_header
-	align 8
 	header_start:
 		dd 0xE85250D6
 		dd 0
@@ -13,7 +12,7 @@ section .multiboot_header
 		dw 0
 		dd 24
 		dd header_start
-		dd header_end
+		dd header_start
 		dd load_end_addr
 		dd stack_top
 
@@ -107,32 +106,36 @@ section .text
 		ret
 	start:
 		mov ESP, stack_top
+		mov EDI, EBX
 		call check_multiboot
 		call check_cpuid
 		call check_long_mode
 		call setup_page_tables
 		call enable_paging
 		lgdt [gdt64.pointer]
-		mov AX, 16
-		mov SS, AX
-		mov DS, AX
-		mov ES, AX
+		mov AX, gdt64.data
+		;mov SS, AX
+		;mov DS, AX
+		;mov ES, AX
 		jmp gdt64.code:long_mode_start
+		hlt
 
 section .rodata
 	gdt64:
 		dq 0
-		.code:  equ $ - gdt64
-			dq (1<<44)|(1<<47)|(1<<41)|(1<<43)|(1<<53)
-		.data:  equ $ - gdt64
-			dq (1<<44)|(1<<47)|(1<<41)
-		.pointer:
-			dw $ - gdt64 - 1
-			dq gdt64
+	.code: equ $ - gdt64
+		dq (1 << 44) | (1 << 47) | (1 << 41) | (1 << 43) | (1 << 53)
+	.data: equ $ - gdt64
+		dq (1 << 44) | (1 << 47) | (1 << 41)
+	.pointer:
+		dw $ - gdt64 - 1
+		dq gdt64
 	load_end_addr:
 		
+
 section .bss
 	align 4096
+
 	p4_table:
 		resb 4096
 	p3_table:
@@ -140,6 +143,6 @@ section .bss
 	p2_table:
 		resb 4096
 	stack_bottom:
-		resb 64
+		resb 8192
 	stack_top:
 		
