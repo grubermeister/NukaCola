@@ -26,7 +26,7 @@ $(iso):  $(kernel) $(grub_cfg)
 	@rm -r build/isofiles
 
 $(kernel):  $(assembly_object_files) $(linker_script)
-	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files)
+	@ld -m i386pep -n -T $(linker_script) -o $(kernel) $(assembly_object_files)
 
 build/arch/$(arch)/%.o:  src/arch/$(arch)/%.asm
 	@mkdir -p $(shell dirname $@)
