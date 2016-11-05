@@ -60,6 +60,24 @@ section .text
 		.no_cpuid:
 			mov AL, "1"
 			jmp error
+	check_sse:
+		mov EAX, 0x1
+		cpuid
+		test EDX, 1 << 25
+		jz .no_sse
+		ret
+		.no_sse:
+			mov AL, "a"
+			jmp error
+	setup_sse:
+		mov EAX, CR0
+		and AX,  0xFFFB
+		or  AX,  0x2
+		mov CR0, EAX
+		mov EAX, CR4
+		or  AX,  3 << 9
+		mov CR4, EAX
+		ret
 	check_long_mode:
 		mov EAX, 0x80000000
 		cpuid
@@ -105,10 +123,13 @@ section .text
 		mov CR0, EAX
 		ret
 	start:
+		cli
 		mov ESP, stack_top
 		mov EDI, EBX
 		call check_multiboot
 		call check_cpuid
+		call check_sse
+		call setup_sse
 		call check_long_mode
 		call setup_page_tables
 		call enable_paging
