@@ -135,9 +135,6 @@ section .text
 		call enable_paging
 		lgdt [gdt64.pointer]
 		mov AX, gdt64.data
-		;mov SS, AX
-		;mov DS, AX
-		;mov ES, AX
 		jmp gdt64.code:long_mode_start
 		hlt
 
