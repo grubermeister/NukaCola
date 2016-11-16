@@ -17,7 +17,11 @@ int serial_CheckFIFO(unsigned int com)
 	return _inb(SERIAL_LINE_STATUS_PORT(com)) & 0x20;
 }
 
+<<<<<<< HEAD
 void kern_main(unsigned int mboot_MemInfoAddr)
+=======
+void kern_main()
+>>>>>>> 6b443788ba74d969176eb8a1a87d86d029a58956
 {
 	serial_Init(SERIAL_COM1);
 	for(;;){
