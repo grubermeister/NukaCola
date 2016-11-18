@@ -1,5 +1,5 @@
 #include "libk.h"
-#include "serial.h"
+
 
 void serial_Init(unsigned short com)
 {
@@ -14,14 +14,41 @@ void serial_Init(unsigned short com)
 
 int serial_CheckFIFO(unsigned int com)
 {
-	return _inb(SERIAL_LINE_STATUS_PORT(com)) & 0x20;
+	return(_inb(SERIAL_LINE_STATUS_PORT(com)) & 0x20);
 }
 
-void kern_main(unsigned int mboot_MemInfoAddr)
+void kputchar(char c)
 {
-	serial_Init(SERIAL_COM1);
-	for(;;){
-		while (serial_CheckFIFO(SERIAL_COM1) == 0);
-		_outb('!', SERIAL_COM1);
+	while(serial_CheckFIFO(SERIAL_COM1) == 0);
+	_outb(c, SERIAL_COM1);
+}
+
+size_t kstrlen(const char* str)
+{
+
+	size_t len = 0;
+
+	while(str[len])
+	{
+		len++;
 	}
+
+
+	return(len);
+}
+
+void kputs(const char* str, size_t len)
+{
+	size_t i;
+	const unsigned char* bytes = (const unsigned char*) str;
+
+	for(i = 0; i < len; i++)
+	{
+		kputchar(bytes[i]);
+	}
+}
+
+void kprintf(const char* str)
+{
+	kputs(str, kstrlen(*str));
 }
