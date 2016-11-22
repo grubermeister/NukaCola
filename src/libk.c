@@ -209,18 +209,18 @@ void kprintf(const char* restrict format, ...)
 			written += len;
 		}
 		else if(*format == 'd')
-		{/*
+		{
 			format++;
 			int i = va_arg(params, int);
-			char* str = NULL;
-			i2a(420, 10, str);
+			char str[16];
+			i2a(i, 10, str);
 			size_t len = kstrlen(str);
 			if(!maxrem)
 			{
 				panic();
 			}
 			kputs(str, len);
-			written += len;*/
+			written += len;
 		}
 		else
 		{
@@ -241,7 +241,7 @@ void kprintf(const char* restrict format, ...)
 
 void libtest(void)
 {
-	char* str = NULL;
+	char str[512];
 
 	i2a(420, 10, str);
 	kputs(str, kstrlen(str));

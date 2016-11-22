@@ -9,8 +9,6 @@ void kern_main(uint32_t mboot_MemInfoAddr)
 	serial_Init(SERIAL_COM1);
 	for(;;)
 	{
-		libtest();
-		//kprintf("%d ", 69);
-		//kputs(str, len);
+		kprintf("%d%c\n", 420, '~');
 	}
 }
